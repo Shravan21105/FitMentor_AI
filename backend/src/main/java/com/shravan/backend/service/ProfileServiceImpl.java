@@ -1,0 +1,108 @@
+package com.shravan.backend.service;
+
+import com.shravan.backend.dto.ProfileRequest;
+import com.shravan.backend.dto.ProfileResponse;
+import com.shravan.backend.entity.Profile;
+import com.shravan.backend.entity.User;
+import com.shravan.backend.exception.BadRequestException;
+import com.shravan.backend.exception.ProfileNotFoundException;
+import com.shravan.backend.repository.ProfileRepository;
+import com.shravan.backend.repository.UserRepository;
+import com.shravan.backend.util.SecurityUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class ProfileServiceImpl implements ProfileService {
+
+    private final ProfileRepository profileRepository;
+    private final UserRepository userRepository;
+
+    @Override
+    public ProfileResponse createProfile(ProfileRequest request) {
+
+        String email = SecurityUtils.getCurrentUserEmail();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        if (profileRepository.findByUser(user).isPresent()) {
+            throw new BadRequestException(
+                    "Profile already exists. Use update API."
+            );
+        }
+
+        Profile profile = Profile.builder()
+                .age(request.getAge())
+                .gender(request.getGender())
+                .height(request.getHeight())
+                .currentWeight(request.getCurrentWeight())
+                .targetWeight(request.getTargetWeight())
+                .activityLevel(request.getActivityLevel())
+                .fitnessGoal(request.getFitnessGoal())
+                .user(user)
+                .build();
+
+        profileRepository.save(profile);
+
+        return mapToResponse(profile);
+    }
+
+    @Override
+    public ProfileResponse getProfile() {
+
+        String email = SecurityUtils.getCurrentUserEmail();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        Profile profile = profileRepository.findByUser(user)
+                .orElseThrow(() ->
+                        new ProfileNotFoundException("Profile not found"));
+
+        return mapToResponse(profile);
+    }
+
+    @Override
+    public ProfileResponse updateProfile(ProfileRequest request) {
+
+        String email = SecurityUtils.getCurrentUserEmail();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        Profile profile = profileRepository.findByUser(user)
+                .orElseThrow(() ->
+                        new ProfileNotFoundException("Profile not found"));
+
+        profile.setAge(request.getAge());
+        profile.setGender(request.getGender());
+        profile.setHeight(request.getHeight());
+        profile.setCurrentWeight(request.getCurrentWeight());
+        profile.setTargetWeight(request.getTargetWeight());
+        profile.setActivityLevel(request.getActivityLevel());
+        profile.setFitnessGoal(request.getFitnessGoal());
+
+        profileRepository.save(profile);
+
+        return mapToResponse(profile);
+    }
+
+    private ProfileResponse mapToResponse(Profile profile) {
+
+        return ProfileResponse.builder()
+                .id(profile.getId())
+                .age(profile.getAge())
+                .gender(profile.getGender())
+                .height(profile.getHeight())
+                .currentWeight(profile.getCurrentWeight())
+                .targetWeight(profile.getTargetWeight())
+                .activityLevel(profile.getActivityLevel())
+                .fitnessGoal(profile.getFitnessGoal())
+                .build();
+    }
+}

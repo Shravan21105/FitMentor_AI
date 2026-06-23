@@ -32,5 +32,11 @@ public class User {
     @JoinColumn(name = "subscription_id")
     private Subscription subscription;
 
+    @OneToOne(
+            mappedBy = "user",
+            cascade = CascadeType.ALL
+    )
+    private Profile profile;
+
 
 }

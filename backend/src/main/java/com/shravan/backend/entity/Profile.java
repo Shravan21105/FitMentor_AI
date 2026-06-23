@@ -3,6 +3,7 @@ package com.shravan.backend.entity;
 import jakarta.annotation.security.DenyAll;
 import jakarta.persistence.*;
 import lombok.*;
+import com.shravan.backend.entity.WorkoutType;
 
 @Entity
 @Table(name ="profiles")
@@ -26,6 +27,8 @@ public class Profile {
 
     private double currentWeight;
 
+    private Double startingWeight;
+
     private double targetWeight;
 
     @Enumerated(EnumType.STRING)
@@ -33,6 +36,9 @@ public class Profile {
 
     @Enumerated(EnumType.STRING)
     private FitnessGoal fitnessGoal;
+
+    @Enumerated(EnumType.STRING)
+    private WorkoutType workoutType;
 
     @OneToOne
     @JoinColumn(

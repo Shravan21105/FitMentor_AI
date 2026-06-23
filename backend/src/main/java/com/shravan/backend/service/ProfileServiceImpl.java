@@ -39,9 +39,11 @@ public class ProfileServiceImpl implements ProfileService {
                 .gender(request.getGender())
                 .height(request.getHeight())
                 .currentWeight(request.getCurrentWeight())
+                .startingWeight(request.getCurrentWeight())
                 .targetWeight(request.getTargetWeight())
                 .activityLevel(request.getActivityLevel())
                 .fitnessGoal(request.getFitnessGoal())
+                .workoutType(request.getWorkoutType())
                 .user(user)
                 .build();
 
@@ -83,9 +85,11 @@ public class ProfileServiceImpl implements ProfileService {
         profile.setGender(request.getGender());
         profile.setHeight(request.getHeight());
         profile.setCurrentWeight(request.getCurrentWeight());
+        profile.setStartingWeight(request.getStartingWeight());
         profile.setTargetWeight(request.getTargetWeight());
         profile.setActivityLevel(request.getActivityLevel());
         profile.setFitnessGoal(request.getFitnessGoal());
+        profile.setWorkoutType(request.getWorkoutType());
 
         profileRepository.save(profile);
 
@@ -100,9 +104,11 @@ public class ProfileServiceImpl implements ProfileService {
                 .gender(profile.getGender())
                 .height(profile.getHeight())
                 .currentWeight(profile.getCurrentWeight())
+                .startingWeight(profile.getStartingWeight())
                 .targetWeight(profile.getTargetWeight())
                 .activityLevel(profile.getActivityLevel())
                 .fitnessGoal(profile.getFitnessGoal())
+                .workoutType(profile.getWorkoutType())
                 .build();
     }
 }

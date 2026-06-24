@@ -239,7 +239,7 @@ http://localhost:8085
 **Shravan**
 
 Computer Science Engineering Student  
-Java Backend Developer | Future Software Engineer | Builder of FitMentor AI
+Java Backend Developer
 
 ---
 

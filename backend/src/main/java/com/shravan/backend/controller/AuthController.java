@@ -4,6 +4,7 @@ import com.shravan.backend.dto.AuthResponse;
 import com.shravan.backend.dto.LoginRequest;
 import com.shravan.backend.dto.RegisterRequest;
 import com.shravan.backend.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,13 +19,15 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest request) {
+    public String register(
+            @Valid @RequestBody RegisterRequest request
+    ) {
         return authService.register(request);
     }
 
     @PostMapping("/login")
     public AuthResponse login(
-            @RequestBody LoginRequest request
+            @Valid @RequestBody LoginRequest request
     ){
         String token = authService.login(request);
 

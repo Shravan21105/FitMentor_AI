@@ -3,6 +3,7 @@ package com.shravan.backend.controller;
 import com.shravan.backend.dto.WeightLogRequest;
 import com.shravan.backend.dto.WeightLogResponse;
 import com.shravan.backend.service.WeightLogService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +18,16 @@ public class WeightLogController {
 
     @PostMapping
     public WeightLogResponse addWeightLog(
-            @RequestBody WeightLogRequest request
+            @Valid @RequestBody WeightLogRequest request
     ) {
-        return weightLogService.addWeightLog(request);
+
+        System.out.println(
+                "CONTROLLER REACHED -> "
+                        + request.getWeight()
+        );
+
+        return weightLogService
+                .addWeightLog(request);
     }
 
     @GetMapping

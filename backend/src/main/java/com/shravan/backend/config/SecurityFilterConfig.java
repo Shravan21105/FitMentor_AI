@@ -31,7 +31,10 @@ public class SecurityFilterConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**")
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/error"
+                        )
                         .permitAll()
                         .anyRequest()
                         .authenticated()

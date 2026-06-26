@@ -11,18 +11,33 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequest(
+    public ResponseEntity<ErrorResponse> handleBadRequest(
             BadRequestException ex
     ) {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+                .body(
+                        new ErrorResponse(
+                                400,
+                                ex.getMessage()
+                        )
+                );
     }
 
-    @ExceptionHandler(ProfileNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleProfileNotFound(
-            ProfileNotFoundException ex
+    @ExceptionHandler({
+            ProfileNotFoundException.class,
+            ExerciseNotFoundException.class,
+            UserNotFoundException.class,
+            MealNotFoundException.class,
+            WaterLogNotFoundException.class,
+            WeightLogNotFoundException.class,
+            WorkoutLogNotFoundException.class,
+            WorkoutPlanNotFoundException.class,
+            DietPlanNotFoundException.class
+    })
+    public ResponseEntity<ErrorResponse> handleNotFound(
+            RuntimeException ex
     ) {
 
         return ResponseEntity
@@ -30,6 +45,21 @@ public class GlobalExceptionHandler {
                 .body(
                         new ErrorResponse(
                                 404,
+                                ex.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(
+            UnauthorizedException ex
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(
+                        new ErrorResponse(
+                                401,
                                 ex.getMessage()
                         )
                 );
@@ -42,7 +72,7 @@ public class GlobalExceptionHandler {
 
         String message = ex.getBindingResult()
                 .getFieldErrors()
-                .get(0)
+                .getFirst()
                 .getDefaultMessage();
 
         return ResponseEntity
@@ -55,20 +85,20 @@ public class GlobalExceptionHandler {
                 );
     }
 
-    @ExceptionHandler(ExerciseNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleExerciseNotFound(
-            ExerciseNotFoundException ex
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(
+            Exception ex
     ) {
 
+        ex.printStackTrace();
+
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(
                         new ErrorResponse(
-                                404,
-                                ex.getMessage()
+                                500,
+                                "Something went wrong. Please try again later."
                         )
                 );
     }
-
-
 }

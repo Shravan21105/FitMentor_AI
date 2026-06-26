@@ -20,23 +20,16 @@ import java.util.List;
 public class ProgressServiceImpl
         implements ProgressService {
 
-    private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
     private final WeightLogRepository weightLogRepository;
     private final WorkoutLogRepository workoutLogRepository;
+    private final CurrentUserService currentUserService;
 
     @Override
     public ProgressResponse getProgress() {
 
-        String email =
-                SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "User not found"
-                        ));
+        User user =
+                currentUserService.getCurrentUser();
 
         Profile profile =
                 profileRepository.findByUser(user)

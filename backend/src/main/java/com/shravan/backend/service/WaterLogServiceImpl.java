@@ -4,6 +4,7 @@ import com.shravan.backend.dto.WaterRequest;
 import com.shravan.backend.dto.WaterResponse;
 import com.shravan.backend.entity.User;
 import com.shravan.backend.entity.WaterLog;
+import com.shravan.backend.exception.WaterLogNotFoundException;
 import com.shravan.backend.repository.UserRepository;
 import com.shravan.backend.repository.WaterLogRepository;
 import com.shravan.backend.util.SecurityUtils;
@@ -20,22 +21,15 @@ public class WaterLogServiceImpl
         implements WaterLogService {
 
     private final WaterLogRepository waterLogRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     @Override
     public WaterResponse addWater(
             WaterRequest request
     ) {
 
-        String email =
-                SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "User not found"
-                        ));
+        User user =
+                currentUserService.getCurrentUser();
 
         WaterLog waterLog =
                 WaterLog.builder()
@@ -53,15 +47,8 @@ public class WaterLogServiceImpl
     @Override
     public List<WaterResponse> getTodayWater() {
 
-        String email =
-                SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "User not found"
-                        ));
+        User user =
+                currentUserService.getCurrentUser();
 
         return waterLogRepository
                 .findByUserAndLoggedDateOrderByLoggedAtDesc(
@@ -76,15 +63,8 @@ public class WaterLogServiceImpl
     @Override
     public List<WaterResponse> getHistory() {
 
-        String email =
-                SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "User not found"
-                        ));
+        User user =
+                currentUserService.getCurrentUser();
 
         return waterLogRepository
                 .findByUserOrderByLoggedAtDesc(user)
@@ -98,21 +78,14 @@ public class WaterLogServiceImpl
             Long id
     ) {
 
-        String email =
-                SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "User not found"
-                        ));
+        User user =
+                currentUserService.getCurrentUser();
 
         WaterLog waterLog =
                 waterLogRepository
                         .findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new WaterLogNotFoundException(
                                         "Water log not found"
                                 ));
 

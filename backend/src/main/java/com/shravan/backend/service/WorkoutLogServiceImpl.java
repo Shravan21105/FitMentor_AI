@@ -5,6 +5,8 @@ import com.shravan.backend.dto.WorkoutCompletionResponse;
 import com.shravan.backend.entity.User;
 import com.shravan.backend.entity.WorkoutLog;
 import com.shravan.backend.entity.WorkoutPlan;
+import com.shravan.backend.exception.UserNotFoundException;
+import com.shravan.backend.exception.WorkoutLogNotFoundException;
 import com.shravan.backend.repository.UserRepository;
 import com.shravan.backend.repository.WorkoutLogRepository;
 import com.shravan.backend.repository.WorkoutPlanRepository;
@@ -21,22 +23,15 @@ public class WorkoutLogServiceImpl
 
     private final WorkoutLogRepository workoutLogRepository;
     private final WorkoutPlanRepository workoutPlanRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     @Override
     public WorkoutCompletionResponse completeWorkout(
             WorkoutCompletionRequest request
     ) {
 
-        String email =
-                SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "User not found"
-                        ));
+        User user =
+                currentUserService.getCurrentUser();
 
         WorkoutPlan workoutPlan =
                 workoutPlanRepository
@@ -44,7 +39,7 @@ public class WorkoutLogServiceImpl
                                 request.getWorkoutPlanId()
                         )
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new WorkoutLogNotFoundException(
                                         "Workout plan not found"
                                 ));
 

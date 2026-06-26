@@ -10,5 +10,7 @@ public enum ExerciseType {
 
     MOBILITY,
 
-    HIIT
+    HIIT,
+
+    HYPERTROPHY
 }

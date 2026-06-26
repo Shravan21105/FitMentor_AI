@@ -6,6 +6,7 @@ import com.shravan.backend.entity.Profile;
 import com.shravan.backend.entity.User;
 import com.shravan.backend.exception.BadRequestException;
 import com.shravan.backend.exception.ProfileNotFoundException;
+import com.shravan.backend.exception.UserNotFoundException;
 import com.shravan.backend.repository.ProfileRepository;
 import com.shravan.backend.repository.UserRepository;
 import com.shravan.backend.util.SecurityUtils;
@@ -17,16 +18,14 @@ import org.springframework.stereotype.Service;
 public class ProfileServiceImpl implements ProfileService {
 
     private final ProfileRepository profileRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
+
 
     @Override
     public ProfileResponse createProfile(ProfileRequest request) {
 
-        String email = SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user =
+                currentUserService.getCurrentUser();
 
         if (profileRepository.findByUser(user).isPresent()) {
             throw new BadRequestException(
@@ -55,11 +54,8 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ProfileResponse getProfile() {
 
-        String email = SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user =
+                currentUserService.getCurrentUser();
 
         Profile profile = profileRepository.findByUser(user)
                 .orElseThrow(() ->
@@ -71,11 +67,8 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ProfileResponse updateProfile(ProfileRequest request) {
 
-        String email = SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user =
+                currentUserService.getCurrentUser();
 
         Profile profile = profileRepository.findByUser(user)
                 .orElseThrow(() ->

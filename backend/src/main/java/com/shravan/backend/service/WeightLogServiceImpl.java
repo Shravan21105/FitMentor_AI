@@ -4,6 +4,8 @@ import com.shravan.backend.dto.WeightLogRequest;
 import com.shravan.backend.dto.WeightLogResponse;
 import com.shravan.backend.entity.User;
 import com.shravan.backend.entity.WeightLog;
+import com.shravan.backend.exception.UserNotFoundException;
+import com.shravan.backend.exception.WeightLogNotFoundException;
 import com.shravan.backend.repository.UserRepository;
 import com.shravan.backend.repository.WeightLogRepository;
 import com.shravan.backend.util.SecurityUtils;
@@ -20,18 +22,15 @@ public class WeightLogServiceImpl
         implements WeightLogService {
 
     private final WeightLogRepository weightLogRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     @Override
     public WeightLogResponse addWeightLog(
             WeightLogRequest request
     ) {
 
-        String email = SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user =
+                currentUserService.getCurrentUser();
 
         WeightLog weightLog = WeightLog.builder()
                 .weight(request.getWeight())
@@ -48,11 +47,8 @@ public class WeightLogServiceImpl
     @Override
     public List<WeightLogResponse> getWeightLogs() {
 
-        String email = SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user =
+                currentUserService.getCurrentUser();
 
         return weightLogRepository
                 .findByUserOrderByLoggedDateDesc(user)
@@ -64,17 +60,14 @@ public class WeightLogServiceImpl
     @Override
     public WeightLogResponse getLatestWeight() {
 
-        String email = SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user =
+                currentUserService.getCurrentUser();
 
         List<WeightLog> logs =
                 weightLogRepository.findByUserOrderByLoggedDateDesc(user);
 
         if(logs.isEmpty()) {
-            throw new RuntimeException("No weight logs found");
+            throw new WeightLogNotFoundException("No weight logs found");
         }
 
         return mapToResponse(logs.get(0));

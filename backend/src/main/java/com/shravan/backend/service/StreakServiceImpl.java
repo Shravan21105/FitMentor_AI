@@ -3,6 +3,7 @@ package com.shravan.backend.service;
 import com.shravan.backend.dto.StreakResponse;
 import com.shravan.backend.entity.User;
 import com.shravan.backend.entity.WorkoutLog;
+import com.shravan.backend.exception.UserNotFoundException;
 import com.shravan.backend.repository.UserRepository;
 import com.shravan.backend.repository.WorkoutLogRepository;
 import com.shravan.backend.util.SecurityUtils;
@@ -18,20 +19,13 @@ public class StreakServiceImpl
         implements StreakService {
 
     private final WorkoutLogRepository workoutLogRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     @Override
     public StreakResponse getStreak() {
 
-        String email =
-                SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "User not found"
-                        ));
+        User user =
+                currentUserService.getCurrentUser();
 
         List<WorkoutLog> logs =
                 workoutLogRepository

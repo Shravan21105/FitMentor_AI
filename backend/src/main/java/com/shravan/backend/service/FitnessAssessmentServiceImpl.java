@@ -5,6 +5,7 @@ import com.shravan.backend.entity.Gender;
 import com.shravan.backend.entity.Profile;
 import com.shravan.backend.entity.User;
 import com.shravan.backend.exception.ProfileNotFoundException;
+import com.shravan.backend.exception.UserNotFoundException;
 import com.shravan.backend.repository.ProfileRepository;
 import com.shravan.backend.repository.UserRepository;
 import com.shravan.backend.util.SecurityUtils;
@@ -18,15 +19,14 @@ public class FitnessAssessmentServiceImpl
 
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
+    private final CurrentUserService currentUserService;
+
 
     @Override
     public FitnessAssessmentResponse calculateAssessment() {
 
-        String email = SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user =
+                currentUserService.getCurrentUser();
 
         Profile profile = profileRepository.findByUser(user)
                 .orElseThrow(() ->

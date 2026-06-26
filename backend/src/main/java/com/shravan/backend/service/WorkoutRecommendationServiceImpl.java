@@ -4,6 +4,8 @@ import com.shravan.backend.dto.WorkoutExerciseResponse;
 import com.shravan.backend.dto.WorkoutPlanResponse;
 import com.shravan.backend.entity.*;
 import com.shravan.backend.exception.ProfileNotFoundException;
+import com.shravan.backend.exception.UserNotFoundException;
+import com.shravan.backend.exception.WorkoutPlanNotFoundException;
 import com.shravan.backend.repository.ProfileRepository;
 import com.shravan.backend.repository.UserRepository;
 import com.shravan.backend.repository.WorkoutExerciseRepository;
@@ -19,19 +21,17 @@ import java.util.List;
 public class WorkoutRecommendationServiceImpl
         implements WorkoutRecommendationService {
 
-    private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
     private final WorkoutPlanRepository workoutPlanRepository;
     private final WorkoutExerciseRepository workoutExerciseRepository;
+    private final CurrentUserService currentUserService;
+
 
     @Override
     public WorkoutPlanResponse getRecommendedWorkout() {
 
-        String email = SecurityUtils.getCurrentUserEmail();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user =
+                currentUserService.getCurrentUser();
 
         Profile profile = profileRepository.findByUser(user)
                 .orElseThrow(() ->
@@ -55,7 +55,7 @@ public class WorkoutRecommendationServiceImpl
                         );
 
         if (plans.isEmpty()) {
-            throw new RuntimeException(
+            throw new WorkoutPlanNotFoundException(
                     "No workout plan found"
             );
         }

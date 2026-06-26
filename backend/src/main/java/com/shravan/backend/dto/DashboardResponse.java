@@ -30,4 +30,11 @@ public class DashboardResponse {
     private Integer todayWater;
     private Integer dailyWaterGoal;
     private Double waterProgress;
+
+    // Meal
+    private Double todayCalories;
+    private Double remainingCalories;
+    private Double todayProtein;
+    private Double todayCarbs;
+    private Double todayFat;
 }

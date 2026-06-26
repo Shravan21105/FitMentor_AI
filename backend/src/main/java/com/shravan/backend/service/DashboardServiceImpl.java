@@ -10,9 +10,12 @@ import com.shravan.backend.repository.ProfileRepository;
 import com.shravan.backend.repository.UserRepository;
 import com.shravan.backend.repository.WeightLogRepository;
 import com.shravan.backend.repository.WorkoutLogRepository;
+import com.shravan.backend.entity.WaterLog;
+import com.shravan.backend.repository.WaterLogRepository;
 import com.shravan.backend.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,6 +29,7 @@ public class DashboardServiceImpl
     private final ProfileRepository profileRepository;
     private final WeightLogRepository weightLogRepository;
     private final WorkoutLogRepository workoutLogRepository;
+    private final WaterLogRepository waterLogRepository;
 
     @Override
     public DashboardResponse getDashboard() {
@@ -90,21 +94,60 @@ public class DashboardServiceImpl
         int currentStreak =
                 calculateCurrentStreak(user);
 
+        List<WaterLog> waterLogs =
+                waterLogRepository
+                        .findByUserAndLoggedDateOrderByLoggedAtDesc(
+                                user,
+                                LocalDate.now()
+                        );
+
+        int todayWater =
+                waterLogs.stream()
+                        .mapToInt(WaterLog::getAmount)
+                        .sum();
+
+        int dailyWaterGoal = 3000;
+
+        double waterProgress =
+                Math.min(
+                        ((double) todayWater / dailyWaterGoal) * 100.0,
+                        100.0
+                );
+
         return DashboardResponse.builder()
+
+                .name(user.getName())
+
                 .startingWeight(startingWeight)
+
                 .currentWeight(currentWeight)
+
                 .targetWeight(targetWeight)
+
                 .weightLost(round(weightLost))
+
                 .remainingWeight(round(remainingWeight))
+
                 .goalCompletionPercentage(
                         round(goalCompletion)
                 )
+
                 .currentStreak(currentStreak)
+
                 .totalWorkoutsCompleted(
                         totalWorkouts
                 )
+
                 .bmi(round(bmi))
+
                 .dailyCalories(round(dailyCalories))
+
+                .todayWater(todayWater)
+
+                .dailyWaterGoal(dailyWaterGoal)
+
+                .waterProgress(round(waterProgress))
+
                 .build();
     }
 
@@ -120,7 +163,7 @@ public class DashboardServiceImpl
                         );
 
         if (!logs.isEmpty()) {
-            return logs.get(0).getWeight();
+            return logs.getFirst().getWeight();
         }
 
         return profile.getCurrentWeight();
@@ -162,9 +205,6 @@ public class DashboardServiceImpl
 
         return switch (activityLevel) {
 
-            case "SEDENTARY" ->
-                    bmr * 1.2;
-
             case "LIGHTLY_ACTIVE" ->
                     bmr * 1.375;
 
@@ -195,7 +235,7 @@ public class DashboardServiceImpl
         double completed =
                 startingWeight - currentWeight;
 
-        return (completed / totalJourney) * 100;
+        return (completed / totalJourney) * 100.0;
     }
 
     private int calculateCurrentStreak(

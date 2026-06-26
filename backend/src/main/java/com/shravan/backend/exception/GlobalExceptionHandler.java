@@ -54,4 +54,21 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(ExerciseNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExerciseNotFound(
+            ExerciseNotFoundException ex
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        new ErrorResponse(
+                                404,
+                                ex.getMessage()
+                        )
+                );
+    }
+
+
 }
